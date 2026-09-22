@@ -19,6 +19,16 @@ async function main() {
   await blasonSrc.clone().resize(1000, 1012, { fit: 'cover' }).webp({ quality: 80 }).toFile(path.join(IMG_DIR, 'blason-1000.webp'));
   await blasonSrc.clone().resize(1000, 1012, { fit: 'cover' }).jpeg({ quality: 80, mozjpeg: true }).toFile(path.join(IMG_DIR, 'blason-1000.jpg'));
 
+  // --- Photo "Ancrage local" (chemin du Bocage), cadrée sur le ratio 6:7
+  // utilisé par .local-photo dans le CSS. Source basse résolution : une seule
+  // taille, pas de variante retina factice. ---
+  const localPhotoPath = path.join(__dirname, 'assets', 'bocage-chemin.jpg');
+  if (fs.existsSync(localPhotoPath)) {
+    const localSrc = sharp(localPhotoPath).resize(480, 560, { fit: 'cover' });
+    await localSrc.clone().webp({ quality: 80 }).toFile(path.join(IMG_DIR, 'bocage-chemin.webp'));
+    await localSrc.clone().jpeg({ quality: 80, mozjpeg: true }).toFile(path.join(IMG_DIR, 'bocage-chemin.jpg'));
+  }
+
   // --- Open Graph image 1200x630, derived from full logo (navy background) ---
   await sharp('assets/senechal-logo-complet.jpg')
     .resize(1200, 630, { fit: 'cover', position: 'centre' })

@@ -127,8 +127,6 @@ ici : le site ne fait plus aucun appel à `fonts.googleapis.com` ou
 - [ ] Test du formulaire avec JavaScript désactivé (fallback `/merci.html`).
 - [ ] Test du honeypot (champ `website` rempli → aucun e-mail envoyé, succès
       affiché quand même).
-- [ ] Photo réelle du Bocage vendéen à la place du bloc `[Photo…]` dans la
-      section « Ancrage local » (`index.html`, commentaire `TODO: photo`).
 - [ ] Favicon provisoire (lettre « S ») à remplacer par une version simplifiée
       du blason (`img/favicon.svg` + PNG associés).
 - [ ] Recherche dans tout le dépôt : aucun nom propre de personne ni de société
