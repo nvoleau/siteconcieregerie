@@ -3,10 +3,12 @@
 Landing page de collecte de contacts (liste d'attente propriétaires) pour la future
 Conciergerie Le Sénéchal, dans le Bocage vendéen.
 
-Site 100 % statique : HTML + CSS + JS vanilla, sans framework, sans dépendance npm
-nécessaire à l'exécution. `build-assets.js` et `package.json` ne servent qu'à
-régénérer les images (voir plus bas) ; ils ne sont pas requis en production et
-peuvent être supprimés une fois les fichiers de `img/` générés.
+Frontend 100 % statique : HTML + CSS + JS vanilla, sans framework. Le seul code
+serveur est une fonction serverless Vercel (`api/contact.js`) qui envoie l'e-mail
+du formulaire via [Resend](https://resend.com) — nécessaire pour que la clé API
+Resend reste côté serveur et ne soit jamais exposée dans le navigateur.
+`build-assets.js` et `package.json` ne servent qu'à régénérer les images (voir
+plus bas) et ne sont pas requis en production.
 
 ## Arborescence
 
@@ -18,43 +20,55 @@ peuvent être supprimés une fois les fichiers de `img/` générés.
 /css/style.css
 /js/form.js
 /js/config.js                (FORM_ENDPOINT)
+/api/contact.js              (fonction serverless Vercel : envoi de l'e-mail via Resend)
 /fonts/…                     (Cinzel, Cormorant Garamond, Karla — woff2, sous-ensemble latin)
 /img/…                       (blason WebP/JPG, favicons, image Open Graph)
 /robots.txt
 /sitemap.xml
-/n8n/workflow-formulaire.json
 ```
 
 ## Déploiement
 
-Le site n'a besoin d'aucune étape de build. Pour Vercel :
+Pour Vercel :
 
 1. Pousser ce dossier sur un dépôt Git (GitHub/GitLab/Bitbucket).
 2. Sur [vercel.com](https://vercel.com), « Add New… → Project » puis importer le dépôt.
 3. Framework preset : **Other** (aucun build command, aucun output directory à
-   changer — Vercel sert les fichiers statiques à la racine tels quels).
-4. Déployer.
+   changer — Vercel sert les fichiers statiques à la racine et détecte
+   automatiquement `api/contact.js` comme fonction serverless).
+4. Dans Project Settings → Environment Variables, ajouter `RESEND_API_KEY`
+   (voir ci-dessous).
+5. Déployer.
 
-Fonctionne également chez n'importe quel hébergeur statique (Netlify, GitHub Pages,
-serveur mutualisé classique) : il suffit de copier tous les fichiers.
+Le frontend (hors formulaire) fonctionne aussi chez n'importe quel hébergeur
+statique, mais `api/contact.js` est écrit pour le runtime Node.js de Vercel :
+sur un autre hébergeur, il faudrait porter cette fonction vers l'équivalent
+local (ou vers une fonction Netlify, par exemple).
 
-## Configuration du formulaire
+## Configuration du formulaire (Resend)
 
 Le formulaire de contact envoie un `POST` JSON vers l'URL définie dans
-`js/config.js` (`FORM_ENDPOINT`). Sans JavaScript, il utilise l'attribut
-`action`/`method="post"` du `<form>` dans `index.html` (même URL à synchroniser
-manuellement).
+`js/config.js` (`FORM_ENDPOINT`, actuellement `/api/contact`). Sans JavaScript,
+il utilise l'attribut `action`/`method="post"` du `<form>` dans `index.html`
+(déjà synchronisé sur la même route). Dans les deux cas, c'est
+`api/contact.js` qui reçoit la requête et appelle l'API Resend.
 
-1. Importer `n8n/workflow-formulaire.json` dans une instance n8n.
-2. Configurer les credentials SMTP (et, en option, Google Sheets — le nœud
-   correspondant est désactivé par défaut).
-3. Restreindre les origines autorisées du nœud Webhook (`allowedOrigins`) et la
-   configuration CORS au domaine réel du site.
-4. Activer le workflow, copier l'URL **de production** du Webhook.
-5. Remplacer `FORM_ENDPOINT` dans `js/config.js` **et** l'attribut `action` du
-   `<form>` dans `index.html` par cette URL.
-6. Configurer le webhook pour rediriger (303) vers `/merci.html` lorsque la
-   requête n'est pas au format JSON (cas du formulaire sans JS).
+1. Créer un compte sur [resend.com](https://resend.com) et vérifier un domaine
+   d'envoi (DNS SPF/DKIM) — Resend ne permet pas d'envoyer depuis une adresse
+   sur un domaine non vérifié.
+2. Créer une clé API Resend, puis la renseigner dans Vercel → Project Settings
+   → Environment Variables sous le nom `RESEND_API_KEY` (Production **et**
+   Preview).
+3. Dans `api/contact.js`, remplacer `FROM_ADDRESS` (adresse d'expédition, sur
+   le domaine vérifié) et `TO_ADDRESS` (adresse qui reçoit les demandes de
+   contact).
+4. Redéployer pour que la nouvelle variable d'environnement soit prise en
+   compte.
+
+`api/contact.js` valide aussi côté serveur le pot de miel et les champs
+requis (défense en profondeur : la validation JavaScript côté client peut être
+contournée), et redirige vers `/merci.html` pour les soumissions sans
+JavaScript.
 
 ## Régénérer les images
 
@@ -78,8 +92,9 @@ ici : le site ne fait plus aucun appel à `fonts.googleapis.com` ou
 
 ### Placeholders à remplacer (recherche `REMPLACER` ou `[` dans le dépôt)
 
-- `js/config.js` → `FORM_ENDPOINT`
-- `index.html` → attribut `action` du `<form>`
+- `api/contact.js` → `FROM_ADDRESS` (domaine vérifié dans Resend),
+  `TO_ADDRESS` (adresse qui reçoit les demandes)
+- Variable d'environnement Vercel `RESEND_API_KEY` (voir ci-dessus)
 - `robots.txt`, `sitemap.xml` → domaine réel du site
 - `index.html`, `mentions-legales.html`, `confidentialite.html`, `merci.html`
   → `https://REMPLACER-PAR-DOMAINE` dans `<link rel="canonical">` et, sur
@@ -88,11 +103,7 @@ ici : le site ne fait plus aucun appel à `fonts.googleapis.com` ou
   fonctionne sur les réseaux sociaux)
 - `mentions-legales.html` → `[ADRESSE_EMAIL_DEDIEE]`, `[NOM_HEBERGEUR]`,
   `[ADRESSE_HEBERGEUR]`, `[TELEPHONE_HEBERGEUR]`
-- `confidentialite.html` → `[ADRESSE_EMAIL_DEDIEE]`, `[OUTIL_FORMULAIRE]`,
-  `[DUREE_CONSERVATION]`
-- `n8n/workflow-formulaire.json` → `[ADRESSE_EMAIL_EXPEDITEUR]`,
-  `[ADRESSE_EMAIL_DEDIEE]`, identifiants de credentials, ID de Google Sheet,
-  domaine dans `allowedOrigins`
+- `confidentialite.html` → `[ADRESSE_EMAIL_DEDIEE]`, `[DUREE_CONSERVATION]`
 
 ### Contrôles qualité
 
