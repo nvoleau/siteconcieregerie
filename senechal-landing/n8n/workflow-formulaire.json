@@ -1,0 +1,160 @@
+{
+  "name": "Le Sénéchal — Formulaire de contact",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "senechal-contact",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://REMPLACER-PAR-DOMAINE"
+        }
+      },
+      "id": "webhook-in",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-100, 200],
+      "webhookId": "REMPLACER-PAR-ID-WEBHOOK"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nconst honeypotFilled = typeof body.website === 'string' && body.website.trim() !== '';\n\nconst requiredFields = ['nom', 'commune', 'situation', 'statut', 'email', 'consentement'];\nconst missing = requiredFields.filter((field) => {\n  const value = body[field];\n  if (field === 'consentement') return value !== true;\n  return typeof value !== 'string' || value.trim() === '';\n});\n\nconst emailOk = typeof body.email === 'string' && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(body.email);\n\nreturn [{\n  json: {\n    ...body,\n    isSpam: honeypotFilled,\n    isValid: !honeypotFilled && missing.length === 0 && emailOk,\n    missingFields: missing,\n  },\n}];"
+      },
+      "id": "validate",
+      "name": "Vérifier honeypot et champs requis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-valid",
+      "name": "Soumission valide ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [340, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "[ADRESSE_EMAIL_EXPEDITEUR]",
+        "toEmail": "[ADRESSE_EMAIL_DEDIEE]",
+        "subject": "=Nouveau contact Le Sénéchal — {{ $json.commune }} — {{ $json.situation }}",
+        "text": "=Nouvelle demande de contact reçue sur le site Le Sénéchal.\n\nNom : {{ $json.nom }}\nCommune du bien : {{ $json.commune }}\nSituation : {{ $json.situation }}\nDéjà en location : {{ $json.statut }}\nE-mail : {{ $json.email }}\nTéléphone : {{ $json.telephone }}\nDate : {{ $json.date }}\nSource : {{ $json.source }}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Envoyer l'e-mail de notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [560, 100],
+      "credentials": {
+        "smtp": {
+          "id": "REMPLACER-PAR-ID-CREDENTIAL-SMTP",
+          "name": "SMTP Le Sénéchal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REMPLACER-PAR-ID-GOOGLE-SHEET",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Contacts",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "commune": "={{ $json.commune }}",
+            "situation": "={{ $json.situation }}",
+            "statut": "={{ $json.statut }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-sheet",
+      "name": "Enregistrer dans Google Sheet (optionnel)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [560, 260],
+      "disabled": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REMPLACER-PAR-ID-CREDENTIAL-GOOGLE",
+          "name": "Google Sheets Le Sénéchal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-ok",
+      "name": "Répondre 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, 160]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-spam-ok",
+      "name": "Répondre 200 (silencieux si spam)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 380]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Vérifier honeypot et champs requis", "type": "main", "index": 0 }]]
+    },
+    "Vérifier honeypot et champs requis": {
+      "main": [[{ "node": "Soumission valide ?", "type": "main", "index": 0 }]]
+    },
+    "Soumission valide ?": {
+      "main": [
+        [
+          { "node": "Envoyer l'e-mail de notification", "type": "main", "index": 0 },
+          { "node": "Enregistrer dans Google Sheet (optionnel)", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Répondre 200 (silencieux si spam)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Envoyer l'e-mail de notification": {
+      "main": [[{ "node": "Répondre 200", "type": "main", "index": 0 }]]
+    }
+  },
+  "notes": "Importer ce workflow dans n8n, configurer les credentials SMTP (et éventuellement Google Sheets), remplacer les [PLACEHOLDERS], puis copier l'URL de production du nœud Webhook dans js/config.js (FORM_ENDPOINT). Le champ 'allowedOrigins' du Webhook et la validation CORS doivent être restreints au domaine réel du site avant mise en ligne.",
+  "meta": {
+    "instanceId": "REMPLACER-PAR-INSTANCE-ID"
+  }
+}

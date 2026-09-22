@@ -1,0 +1,13 @@
+{
+  "name": "senechal-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Landing page statique — Conciergerie Le Sénéchal. Ce package.json ne sert qu'à régénérer les images (build-assets.js) ; il n'est pas nécessaire pour exécuter ou déployer le site.",
+  "scripts": {
+    "build:assets": "node build-assets.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.0"
+  },
+  "license": "UNLICENSED"
+}

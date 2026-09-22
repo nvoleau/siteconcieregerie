@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Seule /index.html est indexable : les pages légales et /merci.html portent
+     <meta name="robots" content="noindex"> et ne doivent donc pas figurer ici
+     (Search Console signale une erreur "URL envoyée mais marquée 'noindex'" sinon). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://REMPLACER-PAR-DOMAINE/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
