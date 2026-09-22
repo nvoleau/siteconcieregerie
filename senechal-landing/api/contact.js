@@ -6,8 +6,12 @@
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
-// Doit être une adresse sur un domaine vérifié dans Resend.
-const FROM_ADDRESS = "Le Sénéchal <contact@REMPLACER-PAR-DOMAINE-VERIFIE-RESEND>";
+// Adresse de test fournie par Resend : fonctionne sans configuration DNS,
+// mais Resend limite alors l'envoi à l'adresse e-mail du compte Resend
+// (voir README). À remplacer par une adresse sur un domaine vérifié
+// (ex. "Le Sénéchal <contact@tondomaine.fr>") dès qu'un domaine est ajouté
+// dans Resend → Domains.
+const FROM_ADDRESS = "Le Sénéchal <onboarding@resend.dev>";
 const TO_ADDRESS = "voleau@gmail.com";
 
 const REQUIRED_FIELDS = ["nom", "commune", "situation", "statut", "email"];

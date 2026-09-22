@@ -53,17 +53,27 @@ il utilise l'attribut `action`/`method="post"` du `<form>` dans `index.html`
 (déjà synchronisé sur la même route). Dans les deux cas, c'est
 `api/contact.js` qui reçoit la requête et appelle l'API Resend.
 
-1. Créer un compte sur [resend.com](https://resend.com) et vérifier un domaine
-   d'envoi (DNS SPF/DKIM) — Resend ne permet pas d'envoyer depuis une adresse
-   sur un domaine non vérifié.
+1. Créer un compte sur [resend.com](https://resend.com).
 2. Créer une clé API Resend, puis la renseigner dans Vercel → Project Settings
    → Environment Variables sous le nom `RESEND_API_KEY` (Production **et**
    Preview).
-3. Dans `api/contact.js`, remplacer `FROM_ADDRESS` (adresse d'expédition, sur
-   le domaine vérifié) et `TO_ADDRESS` (adresse qui reçoit les demandes de
-   contact).
-4. Redéployer pour que la nouvelle variable d'environnement soit prise en
+3. Redéployer pour que la nouvelle variable d'environnement soit prise en
    compte.
+
+Par défaut, `FROM_ADDRESS` utilise l'adresse de test `onboarding@resend.dev`
+fournie par Resend : elle fonctionne **sans aucune configuration DNS**, mais
+Resend limite alors l'envoi à l'adresse e-mail du compte Resend lui-même (donc
+tant que `TO_ADDRESS` correspond à cette adresse, tout fonctionne).
+
+Pour envoyer depuis une adresse comme `contact@conciergerielesenechal.fr` et
+lever cette limitation :
+
+1. Dans Resend → **Domains** → **Add Domain**, ajouter le domaine réel du site.
+2. Ajouter les enregistrements DNS SPF/DKIM fournis par Resend chez le
+   registrar/hébergeur DNS du domaine, puis attendre la vérification (quelques
+   minutes à quelques heures).
+3. Remplacer `FROM_ADDRESS` dans `api/contact.js` par une adresse sur ce
+   domaine, ex. `"Le Sénéchal <contact@conciergerielesenechal.fr>"`.
 
 `api/contact.js` valide aussi côté serveur le pot de miel et les champs
 requis (défense en profondeur : la validation JavaScript côté client peut être
@@ -92,8 +102,10 @@ ici : le site ne fait plus aucun appel à `fonts.googleapis.com` ou
 
 ### Placeholders à remplacer (recherche `REMPLACER` ou `[` dans le dépôt)
 
-- `api/contact.js` → `FROM_ADDRESS` (domaine vérifié dans Resend).
-  `TO_ADDRESS` est déjà réglée sur `voleau@gmail.com`.
+- `api/contact.js` → `FROM_ADDRESS` fonctionne dès maintenant avec
+  `onboarding@resend.dev` ; à remplacer par une adresse sur un domaine vérifié
+  avant le vrai lancement (voir section Resend ci-dessus). `TO_ADDRESS` est
+  déjà réglée sur `voleau@gmail.com`.
 - Variable d'environnement Vercel `RESEND_API_KEY` (voir ci-dessus)
 - `robots.txt`, `sitemap.xml` → domaine réel du site
 - `index.html`, `mentions-legales.html`, `confidentialite.html`, `merci.html`
