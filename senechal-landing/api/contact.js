@@ -8,7 +8,7 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
 // Doit être une adresse sur un domaine vérifié dans Resend.
 const FROM_ADDRESS = "Le Sénéchal <contact@REMPLACER-PAR-DOMAINE-VERIFIE-RESEND>";
-const TO_ADDRESS = "[ADRESSE_EMAIL_DEDIEE]";
+const TO_ADDRESS = "voleau@gmail.com";
 
 const REQUIRED_FIELDS = ["nom", "commune", "situation", "statut", "email"];
 
