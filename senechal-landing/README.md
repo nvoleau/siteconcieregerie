@@ -92,8 +92,8 @@ ici : le site ne fait plus aucun appel à `fonts.googleapis.com` ou
 
 ### Placeholders à remplacer (recherche `REMPLACER` ou `[` dans le dépôt)
 
-- `api/contact.js` → `FROM_ADDRESS` (domaine vérifié dans Resend),
-  `TO_ADDRESS` (adresse qui reçoit les demandes)
+- `api/contact.js` → `FROM_ADDRESS` (domaine vérifié dans Resend).
+  `TO_ADDRESS` est déjà réglée sur `voleau@gmail.com`.
 - Variable d'environnement Vercel `RESEND_API_KEY` (voir ci-dessus)
 - `robots.txt`, `sitemap.xml` → domaine réel du site
 - `index.html`, `mentions-legales.html`, `confidentialite.html`, `merci.html`
