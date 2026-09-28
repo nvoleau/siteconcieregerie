@@ -191,6 +191,14 @@ textarea:focus-visible {
 .btn--gold:hover { background: #d3b183; }
 
 .btn--ghost { background: transparent; color: var(--ivory); padding: 16px 10px; }
+
+.btn--outline {
+  background: transparent;
+  color: var(--navy);
+  border: 1px solid var(--card-border);
+  padding: 15px 27px;
+}
+.btn--outline:hover { border-color: var(--gold-rule); }
 .btn--ghost:hover { color: var(--gold); }
 
 /* --- En-tête ----------------------------------------------------------------- */
@@ -686,6 +694,18 @@ textarea:focus-visible {
 .footer-links a { color: var(--gold); text-decoration: none; }
 .footer-links a:hover { text-decoration: underline; }
 
+.footer-links button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--gold);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+.footer-links button:hover { text-decoration: underline; }
+
 /* --- Pages légales simples ------------------------------------------------------------ */
 
 .legal {
@@ -777,4 +797,40 @@ textarea:focus-visible {
   .form-row { grid-template-columns: 1fr; }
 
   .site-footer { flex-direction: column; align-items: flex-start; }
+}
+
+/* --- Bandeau cookies -------------------------------------------------------- */
+
+.cookie-banner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 200;
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--navy);
+  color: var(--text-on-navy);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(17, 27, 45, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cookie-banner__text { font-size: 15px; line-height: 1.5; }
+.cookie-banner__text a { color: var(--gold); }
+
+.cookie-banner__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cookie-banner .btn--outline { color: var(--ivory); border-color: #2C3C58; }
+.cookie-banner .btn--outline:hover { border-color: var(--gold); }
+
+@media (max-width: 640px) {
+  .cookie-banner__actions .btn { flex: 1; }
 }

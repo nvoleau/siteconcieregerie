@@ -3,4 +3,8 @@ window.SENECHAL_CONFIG = {
   // Route de la fonction serverless Vercel qui envoie l'e-mail via Resend.
   // Voir /api/contact.js et le README pour la configuration (RESEND_API_KEY).
   FORM_ENDPOINT: "/api/contact",
+
+  // Identifiant de mesure Google Analytics (gtag.js).
+  // Chargé uniquement après consentement, voir /js/consent.js.
+  GA_MEASUREMENT_ID: "G-9YKEX4ZX98",
 };

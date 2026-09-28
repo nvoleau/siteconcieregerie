@@ -51,7 +51,8 @@
     <p>Vous disposez d'un droit d'accès, de rectification, de suppression et de retrait de votre consentement à tout moment. Pour exercer ces droits, écrivez à <a href="mailto:[ADRESSE_EMAIL_DEDIEE]">[ADRESSE_EMAIL_DEDIEE]</a>. Vous pouvez également introduire une réclamation auprès de la CNIL.</p>
 
     <h2>Cookies et traceurs</h2>
-    <p>Ce site ne dépose aucun cookie ni aucun traceur.</p>
+    <p>Ce site utilise Google Analytics afin de mesurer la fréquentation (pages consultées, provenance des visites). Cet outil dépose des cookies de mesure d'audience sur votre appareil, uniquement si vous l'acceptez via le bandeau affiché lors de votre première visite. Si vous refusez, aucun cookie Google Analytics n'est déposé. Les données collectées après acceptation sont traitées par Google et peuvent transiter en dehors de l'Union européenne.</p>
+    <p>Vous pouvez modifier votre choix à tout moment en cliquant sur « Gérer les cookies » en bas de page.</p>
   </div>
 </main>
 
@@ -60,8 +61,11 @@
   <div class="footer-links">
     <a href="/mentions-legales.html">Mentions légales</a>
     <a href="/confidentialite.html">Politique de confidentialité</a>
+    <button type="button" onclick="window.SENECHAL_COOKIE_PREFS.reopen()">Gérer les cookies</button>
   </div>
 </footer>
 
+<script src="/js/config.js"></script>
+<script src="/js/consent.js"></script>
 </body>
 </html>
